@@ -10,6 +10,7 @@ public class Bot extends TelegramBotExtension {
     private final String id = "1705482445:AAHFkgPeFtdcmV1_FOA5AeUpqVVTyuc00ok";
     private final String name = "valera_mopsly_bot";
     ConversationStateMonitor stateMonitor = new ConversationStateMonitor();
+    String string;
 
     public static void main(String[] args) {
         try {
@@ -18,6 +19,7 @@ public class Bot extends TelegramBotExtension {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+        Authorization.setUpEmployees();
     }
 
     @Override
@@ -39,29 +41,31 @@ public class Bot extends TelegramBotExtension {
 
             User user = update.getMessage().getFrom();
             if (msg.hasText()) {
-                switch (stateMonitor.getState(user.getId().toString())) {
-                    case NONE:
-                        if (msg.getText().equals("/start")) {
-                            sendMsg(msg.getChatId().toString(), "Здравствуйте, меня зовут Валера");
-                        } else {
-                            if (Authorization.isUserAuthorised(user.getId().toString()))
-                                sendMsg(msg.getChatId().toString(), "Hello, " + user.getFirstName());
-                            else {
-                                sendMsg(msg.getChatId().toString(), "Sorry, you don't have permission to talk to me \n " +
-                                        "Would you like to give me your phone number?");
-                                stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_PHONE);
-                        }
-                        }
-                        break;
-                    case AWAIT_FOR_PHONE:
-                        sendMsg(msg.getChatId().toString(), "enter your phone number");
-                        stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.PHONE_ACCEPTED);
-                        break;
-                    case  PHONE_ACCEPTED:
-                        sendMsg(msg.getChatId().toString(),"Access Granted");
-                        break;
-                    default:
-                        break;
+                if (msg.getText().equals("/start")) {
+                    sendMsg(msg.getChatId().toString(), "Здравствуйте, меня зовут Валера");
+                }
+                if (Authorization.isUserAuthorised(user.getId().toString()))
+                    sendMsg(msg.getChatId().toString(), "Hello, " + user.getFirstName());
+                else {
+                    switch (stateMonitor.getState(user.getId().toString())) {
+                        case NONE:
+                            sendMsg(msg.getChatId().toString(), "Вы не авторизованы? Введите код сообщения");
+                            stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_CODE);
+                            string = Authorization.generateVerificationCode();
+                            System.out.println(string);
+                            break;
+                        case AWAIT_FOR_CODE:
+                            if (msg.getText().equals(string)) {
+                                sendMsg(msg.getChatId().toString(), "Код принят");
+                                stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
+                                Authorization.addUser(msg.getChatId().toString());
+                            } else {
+                                sendMsg(msg.getChatId().toString(), "Неверный код");
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
