@@ -49,7 +49,9 @@ public class Bot extends TelegramBotExtension {
                 else {
                     switch (stateMonitor.getState(user.getId().toString())) {
                         case NONE:
-                            sendMsg(msg.getChatId().toString(), "Вы не авторизованы? Введите код сообщения");
+                            sendMsg(msg.getChatId().toString(), "Вы не авторизованы. \n"+
+                                    "Вам отправлен код для подтверждения авторизации\n"+
+                                    "Для доступа к функционалу введите код из сообщения");
                             stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_CODE);
                             string = Authorization.generateVerificationCode();
                             System.out.println(string);
