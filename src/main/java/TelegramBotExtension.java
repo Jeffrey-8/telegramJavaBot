@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TelegramBotExtention extends TelegramLongPollingBot {
+public class TelegramBotExtension extends TelegramLongPollingBot {
     @Override
     public String getBotUsername() {
         return null;
