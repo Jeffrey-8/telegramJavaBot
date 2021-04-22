@@ -44,23 +44,28 @@ public class Bot extends TelegramBotExtension {
                 if (msg.getText().equals("/start")) {
                     sendMsg(msg.getChatId().toString(), "Здравствуйте, меня зовут Валера");
                 }
+            }
                 if (Authorization.isUserAuthorised(user.getId().toString()))
                     sendMsg(msg.getChatId().toString(), "Hello, " + user.getFirstName());
                 else {
                     switch (stateMonitor.getState(user.getId().toString())) {
                         case NONE:
-                            sendMsg(msg.getChatId().toString(), "Вы не авторизованы. \n"+
-                                    "Вам отправлен код для подтверждения авторизации\n"+
-                                    "Для доступа к функционалу введите код из сообщения");
+                            sendMsgWithKeyboard(msg.getChatId().toString(), "Вы не авторизованы. \n"+
+                                    "Для доступа к функционалу введите свой номер телефона",setPhoneKeyboard());
+                            stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_PHONE);
+                            break;
+                        case AWAIT_FOR_PHONE:
+                            sendMsg(msg.getChatId().toString(),"Вам отправлен код подтверждения. Введите его, чтобы продолжить");
+                            Authorization.addUser(msg.getChatId().toString());
+                            string = Authorization.generateVerificationCode(msg.getChatId().toString());
+                            System.out.println(msg.getChatId()+" "+string);
                             stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_CODE);
-                            string = Authorization.generateVerificationCode();
-                            System.out.println(string);
                             break;
                         case AWAIT_FOR_CODE:
-                            if (msg.getText().equals(string)) {
+                            if (msg.hasText()&& Authorization.verifyCode(msg.getChatId().toString(),msg.getText())) {
                                 sendMsg(msg.getChatId().toString(), "Код принят");
                                 stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
-                                Authorization.addUser(msg.getChatId().toString());
+                                Authorization.authoriseUser(msg.getChatId().toString());
                             } else {
                                 sendMsg(msg.getChatId().toString(), "Неверный код");
                             }
@@ -71,6 +76,6 @@ public class Bot extends TelegramBotExtension {
                 }
             }
         }
-    }
+
 
 }
