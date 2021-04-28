@@ -18,7 +18,8 @@ public class ConversationStateMonitor {
 enum State {
     NONE,
     AWAIT_FOR_PHONE,
-    AWAIT_FOR_CODE
+    AWAIT_FOR_CODE,
+    AWAIT_FOR_EMPLOYEE
     }
 }
 
