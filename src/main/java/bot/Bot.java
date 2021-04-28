@@ -1,26 +1,51 @@
-import org.telegram.telegrambots.meta.TelegramBotsApi;
+package bot;
+
+import models.Role;
+import models.State;
+import models.UserVacation;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-
+@Component
 public class Bot extends TelegramBotExtension {
-    private final String id = "1705482445:AAHFkgPeFtdcmV1_FOA5AeUpqVVTyuc00ok";
-    private final String name = "valera_mopsly_bot";
+//    private final String id = "1705482445:AAHFkgPeFtdcmV1_FOA5AeUpqVVTyuc00ok";
+//    private final String name = "valera_mopsly_bot";
+
+
+    @Value("${bot.name}")
+    private String name /*= "valera_mopsly_bot"*/;
+
+    @Value("${bot.token}")
+    private String id /*= "1705482445:AAHFkgPeFtdcmV1_FOA5AeUpqVVTyuc00ok"*/;
+
+
+
     ConversationStateMonitor stateMonitor = new ConversationStateMonitor();
     String string;
 
-    public static void main(String[] args) {
-        try {
-            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-            telegramBotsApi.registerBot(new Bot());
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-        Authorization.setUpEmployees();
-    }
+//    public Bot() {
+//        try {
+//            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(/*DefaultBotSession.class*/);
+//            telegramBotsApi.registerBot(new Bot());
+//        } catch (TelegramApiException e) {
+//            e.printStackTrace();
+//        }
+//        Authorization.setUpEmployees();
+//    }
+
+
+//    public static void main(String[] args) {
+//        try {
+//            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(/*DefaultBotSession.class*/);
+//            telegramBotsApi.registerBot(new Bot.Bot());
+//        } catch (TelegramApiException e) {
+//            e.printStackTrace();
+//        }
+//        Bot.Authorization.setUpEmployees();
+//    }
 
     @Override
     public String getBotUsername() {
@@ -55,6 +80,7 @@ public class Bot extends TelegramBotExtension {
                             stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_PHONE);
                             break;
                         case AWAIT_FOR_PHONE:
+
                             sendMsg(msg.getChatId().toString(),"Вам отправлен код подтверждения. Введите его, чтобы продолжить");
                             Authorization.addUser(msg.getChatId().toString());
                             string = Authorization.generateVerificationCode(msg.getChatId().toString());

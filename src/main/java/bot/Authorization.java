@@ -1,4 +1,5 @@
-import java.lang.reflect.Array;
+package bot;
+
 import java.util.*;
 
 public class Authorization {
