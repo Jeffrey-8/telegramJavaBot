@@ -1,7 +1,5 @@
 package bot;
 
-import models.Role;
-import models.State;
 import models.UserVacation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import repositories.UserVacationRepository;
+import servises.MessageService;
 
 
 @Component
@@ -30,7 +29,8 @@ public class Bot extends TelegramBotExtension {
 
 
     ConversationStateMonitor stateMonitor = new ConversationStateMonitor();
-    String string;
+    MessageService messageService = new MessageService();
+    String verificationCode;
 
 //    public Bot() {
 //        try {
@@ -79,11 +79,8 @@ public class Bot extends TelegramBotExtension {
             if (Authorization.isUserAuthorised(user.getId().toString())) {
                 switch (stateMonitor.getState(msg.getChatId().toString())) {
                     case AWAIT_FOR_EMPLOYEE:
-//                         TODO @FRO: String result = yourFunction(msg.getText());
-
                         UserVacation userInfo = repository.findUserVacationByLastName(msg.getText());
-
-                        sendMsg(msg.getChatId().toString(), userInfo.getPhoneNumber());
+                        sendMsg(msg.getChatId().toString(), messageService.getUserInfoMessage(userInfo));
                         stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
                         break;
                     default:
@@ -101,8 +98,8 @@ public class Bot extends TelegramBotExtension {
                     case AWAIT_FOR_PHONE:
                         sendMsg(msg.getChatId().toString(), "Вам отправлен код подтверждения. Введите его, чтобы продолжить");
                         Authorization.addUser(msg.getChatId().toString());
-                        string = Authorization.generateVerificationCode(msg.getChatId().toString());
-                        System.out.println(msg.getChatId() + " " + string);
+                        verificationCode = Authorization.generateVerificationCode(msg.getChatId().toString());
+                        System.out.println(msg.getChatId() + " " + verificationCode);
                         stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_CODE);
                         break;
                     case AWAIT_FOR_CODE:
@@ -127,6 +124,12 @@ public class Bot extends TelegramBotExtension {
                 case "Employee info":
                     sendMsg(callbackQuery.getFrom().getId().toString(), "Введите ФИО сотрудника");
                     stateMonitor.setState(callbackQuery.getFrom().getId().toString(), ConversationStateMonitor.State.AWAIT_FOR_EMPLOYEE);
+                    break;
+                case "Vacation info":
+                    break;
+                case "Vacation rules":
+                    sendMsg(callbackQuery.getFrom().getId().toString(),
+                            "Для того чтобы уйти в отпуск напишите заявление");
                     break;
                 default:
                     break;
