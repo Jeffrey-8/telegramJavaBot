@@ -59,49 +59,71 @@ public class Bot extends TelegramBotExtension {
 
     @Override
     public void onUpdateReceived(Update update) {
+
         System.out.println("update recieved");
+
         if (update.hasMessage()) {
             Message msg = update.getMessage();
-            System.out.println(stateMonitor.getState(msg.getChatId().toString()));
-
             User user = update.getMessage().getFrom();
             if (msg.hasText()) {
                 if (msg.getText().equals("/start")) {
                     sendMsg(msg.getChatId().toString(), "Здравствуйте, меня зовут Валера");
                 }
             }
-                if (Authorization.isUserAuthorised(user.getId().toString()))
-                    sendMsg(msg.getChatId().toString(), "Hello, " + user.getFirstName());
-                else {
-                    switch (stateMonitor.getState(user.getId().toString())) {
-                        case NONE:
-                            sendMsgWithKeyboard(msg.getChatId().toString(), "Вы не авторизованы. \n"+
-                                    "Для доступа к функционалу введите свой номер телефона",setPhoneKeyboard());
-                            stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_PHONE);
-                            break;
-                        case AWAIT_FOR_PHONE:
+            if (Authorization.isUserAuthorised(user.getId().toString())) {
+                switch (stateMonitor.getState(msg.getChatId().toString())) {
+                    case AWAIT_FOR_EMPLOYEE:
+                        // TODO @FRO: String result = yourFunction(msg.getText());
+                        sendMsg(msg.getChatId().toString(), "Номер сотрудника 8-800-555-35-35");
+                        stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
+                        break;
+                    default:
+                        sendMsgWithKeyboard(msg.getChatId().toString(), "Чем могу вам помочь?", setMainKeyboardMarkup());
+                        break;
+                }
+            }
+            else {
+                switch (stateMonitor.getState(user.getId().toString())) {
+                    case NONE:
+                        sendMsgWithKeyboard(msg.getChatId().toString(), "Вы не авторизованы. \n" +
+                                "Для доступа к функционалу введите свой номер телефона", setPhoneKeyboard());
+                        stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_PHONE);
+                        break;
+                    case AWAIT_FOR_PHONE:
+                        sendMsg(msg.getChatId().toString(), "Вам отправлен код подтверждения. Введите его, чтобы продолжить");
+                        Authorization.addUser(msg.getChatId().toString());
+                        string = Authorization.generateVerificationCode(msg.getChatId().toString());
+                        System.out.println(msg.getChatId() + " " + string);
+                        stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_CODE);
+                        break;
+                    case AWAIT_FOR_CODE:
+                        if (msg.hasText() && Authorization.verifyCode(msg.getChatId().toString(), msg.getText())) {
+                            sendMsg(msg.getChatId().toString(), "Код принят");
+                            stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
+                            Authorization.authoriseUser(msg.getChatId().toString());
+                        } else {
+                            sendMsg(msg.getChatId().toString(), "Неверный код");
+                        }
+                        break;
 
-                            sendMsg(msg.getChatId().toString(),"Вам отправлен код подтверждения. Введите его, чтобы продолжить");
-                            Authorization.addUser(msg.getChatId().toString());
-                            string = Authorization.generateVerificationCode(msg.getChatId().toString());
-                            System.out.println(msg.getChatId()+" "+string);
-                            stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_CODE);
-                            break;
-                        case AWAIT_FOR_CODE:
-                            if (msg.hasText()&& Authorization.verifyCode(msg.getChatId().toString(),msg.getText())) {
-                                sendMsg(msg.getChatId().toString(), "Код принят");
-                                stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
-                                Authorization.authoriseUser(msg.getChatId().toString());
-                            } else {
-                                sendMsg(msg.getChatId().toString(), "Неверный код");
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                    default:
+                        break;
                 }
             }
         }
+        if (update.hasCallbackQuery()) {
+            CallbackQuery callbackQuery = update.getCallbackQuery();
+            System.out.println(callbackQuery.getData());
+            switch (callbackQuery.getData()) {
+                case "Employee info":
+                    sendMsg(callbackQuery.getFrom().getId().toString(), "Введите ФИО сотрудника");
+                    stateMonitor.setState(callbackQuery.getFrom().getId().toString(), ConversationStateMonitor.State.AWAIT_FOR_EMPLOYEE);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
 
 }
