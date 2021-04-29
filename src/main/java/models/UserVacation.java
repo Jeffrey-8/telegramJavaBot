@@ -20,9 +20,15 @@ public class UserVacation {
  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String telegramId;
+
     private String phoneNumber;
 
-    private String telegramId;
+    private String firstName;
+
+    private String lastName;
+
+    private String position;
 
     private String vacationDates;
 

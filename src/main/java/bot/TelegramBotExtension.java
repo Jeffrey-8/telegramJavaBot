@@ -1,3 +1,5 @@
+package bot;
+
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -51,7 +53,7 @@ public class TelegramBotExtension extends TelegramLongPollingBot {
 
     }
 
-    protected synchronized void sendMsgWithKeyboard(String chatId, String text, ReplyKeyboardMarkup keyboardMarkup) {
+    protected synchronized void sendMsgWithKeyboard(String chatId, String text, ReplyKeyboard keyboardMarkup) {
 //        SendMessage msg = SendMessage
 //                .builder()
 //                .chatId(chatId)
@@ -71,7 +73,7 @@ public class TelegramBotExtension extends TelegramLongPollingBot {
     }
 
 
-    protected ReplyKeyboardMarkup setPhoneKeyboard() {
+    protected ReplyKeyboard setPhoneKeyboard() {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboard = new ArrayList<>();
         KeyboardRow keyboardButtons = new KeyboardRow();
@@ -85,7 +87,7 @@ public class TelegramBotExtension extends TelegramLongPollingBot {
         return replyKeyboardMarkup;
     }
 
-    protected InlineKeyboardMarkup setMainKeyboardMarkup() {
+    protected ReplyKeyboard setMainKeyboardMarkup() {
         InlineKeyboardMarkup replyKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton employeeInfoBtn = new InlineKeyboardButton();
         employeeInfoBtn.setText("Информация о сотруднике");

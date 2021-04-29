@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface UserVacationRepository extends JpaRepository<UserVacation, Long> {
  UserVacation findUserVacationByPhoneNumber(String phoneNumber);
 // UserVacation findAllByPhoneNumber(String phoneNumber);
+ UserVacation findUserVacationByLastName(String lastName);
+
 }

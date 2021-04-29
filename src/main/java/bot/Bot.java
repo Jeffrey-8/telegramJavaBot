@@ -3,17 +3,23 @@ package bot;
 import models.Role;
 import models.State;
 import models.UserVacation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import repositories.UserVacationRepository;
+
 
 @Component
 public class Bot extends TelegramBotExtension {
 //    private final String id = "1705482445:AAHFkgPeFtdcmV1_FOA5AeUpqVVTyuc00ok";
 //    private final String name = "valera_mopsly_bot";
 
+    @Autowired
+    UserVacationRepository repository;
 
     @Value("${bot.name}")
     private String name /*= "valera_mopsly_bot"*/;
@@ -73,12 +79,15 @@ public class Bot extends TelegramBotExtension {
             if (Authorization.isUserAuthorised(user.getId().toString())) {
                 switch (stateMonitor.getState(msg.getChatId().toString())) {
                     case AWAIT_FOR_EMPLOYEE:
-                        // TODO @FRO: String result = yourFunction(msg.getText());
-                        sendMsg(msg.getChatId().toString(), "Номер сотрудника 8-800-555-35-35");
+//                         TODO @FRO: String result = yourFunction(msg.getText());
+
+                        UserVacation userInfo = repository.findUserVacationByLastName(msg.getText());
+
+                        sendMsg(msg.getChatId().toString(), userInfo.getPhoneNumber());
                         stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
                         break;
                     default:
-                        sendMsgWithKeyboard(msg.getChatId().toString(), "Чем могу вам помочь?", setMainKeyboardMarkup());
+                        sendMsgWithKeyboard(msg.getChatId().toString(), "Чем могу вам помочь?", setMainKeyboardMarkup());//FIXME: @Mopsly InlineKeyboardMarkup setMainKeyboardMarkup();
                         break;
                 }
             }
