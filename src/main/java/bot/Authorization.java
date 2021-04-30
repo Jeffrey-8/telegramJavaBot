@@ -29,7 +29,8 @@ public static String generateVerificationCode(String id){
     return code;
 }
 public static boolean verifyCode(String id, String code){
-    return  code.equals(users.get(id).getVerificationCode());
+//    return  code.equals(users.get(id).getVerificationCode());
+return  true; //FIXME: temporary auth plug
 }
 
 }

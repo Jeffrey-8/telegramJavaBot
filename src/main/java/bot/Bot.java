@@ -11,6 +11,9 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import repositories.UserVacationRepository;
 import servises.MessageService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Component
 public class Bot extends TelegramBotExtension {
@@ -79,12 +82,32 @@ public class Bot extends TelegramBotExtension {
             if (Authorization.isUserAuthorised(user.getId().toString())) {
                 switch (stateMonitor.getState(msg.getChatId().toString())) {
                     case AWAIT_FOR_EMPLOYEE:
-                        UserVacation userInfo = repository.findUserVacationByLastName(msg.getText());
-                        sendMsg(msg.getChatId().toString(), messageService.getUserInfoMessage(userInfo));
-                        stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
+
+                        String[] candidateEmployee = splitLastNameFirstName(msg);
+
+                        if (candidateEmployee.length>1){ //если передвли боту и firstName и Lastname
+
+                            //FIXME: @FRO: если пользователь ввдет не в том порядке или Иванов И.И. то что тогда
+                            List<UserVacation> employeesInfo = repository.findAllByLastNameAndFirstName(candidateEmployee[0], candidateEmployee[1]);
+                            if(employeesInfo!=null)
+                            {
+                                sendMsg(msg.getChatId().toString(), messageService.getUserInfoMessage(employeesInfo));
+                                if( employeesInfo.size()==1){
+                                    stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
+                                }
+                            }
+
+                        } else { //если боту передали только LastName
+                            List<UserVacation> employeesInfo = repository.findAllByLastName(candidateEmployee[0]);
+
+                            sendMsg(msg.getChatId().toString(), messageService.getUserInfoMessage(employeesInfo));
+                            if( employeesInfo.size()==1) {
+                                stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
+                            }
+                        }
                         break;
                     default:
-                        sendMsgWithKeyboard(msg.getChatId().toString(), "Чем могу вам помочь?", setMainKeyboardMarkup());//FIXME: @Mopsly InlineKeyboardMarkup setMainKeyboardMarkup();
+                        sendMsgWithKeyboard(msg.getChatId().toString(), "Чем могу вам помочь?", setMainKeyboardMarkup());
                         break;
                 }
             }
@@ -105,6 +128,7 @@ public class Bot extends TelegramBotExtension {
                     case AWAIT_FOR_CODE:
                         if (msg.hasText() && Authorization.verifyCode(msg.getChatId().toString(), msg.getText())) {
                             sendMsg(msg.getChatId().toString(), "Код принят");
+                            sendMsgWithKeyboard(msg.getChatId().toString(), "Чем могу вам помочь?", setMainKeyboardMarkup());
                             stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
                             Authorization.authoriseUser(msg.getChatId().toString());
                         } else {
@@ -134,8 +158,17 @@ public class Bot extends TelegramBotExtension {
                 default:
                     break;
             }
+
+
+
+
+
         }
     }
 
-
+    String[] splitLastNameFirstName(Message message) {
+        String msg = message.getText();
+        String[] result = msg.split(" ");
+        return result;
+    }
 }
