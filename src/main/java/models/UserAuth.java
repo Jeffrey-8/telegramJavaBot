@@ -23,4 +23,6 @@ public class UserAuth {
 
     private String phoneNumber;
 
+    private boolean loggedIn;
+
 }

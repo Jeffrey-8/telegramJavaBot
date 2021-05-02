@@ -9,10 +9,11 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import repositories.UserVacationRepository;
-import servises.MessageService;
+import servises.EmployeeInfoService;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Component
@@ -30,9 +31,11 @@ public class Bot extends TelegramBotExtension {
     private String id /*= "1705482445:AAHFkgPeFtdcmV1_FOA5AeUpqVVTyuc00ok"*/;
 
 
-
     ConversationStateMonitor stateMonitor = new ConversationStateMonitor();
-    MessageService messageService = new MessageService();
+    EmployeeInfoService employeeInfoService = new EmployeeInfoService();
+    Authorization authorization = new Authorization();
+
+
     String verificationCode;
 
 //    public Bot() {
@@ -79,39 +82,44 @@ public class Bot extends TelegramBotExtension {
                     sendMsg(msg.getChatId().toString(), "Здравствуйте, меня зовут Валера");
                 }
             }
-            if (Authorization.isUserAuthorised(user.getId().toString())) {
+            if (authorization.isUserAuthorised(user.getId().toString())) {
                 switch (stateMonitor.getState(msg.getChatId().toString())) {
                     case AWAIT_FOR_EMPLOYEE:
-
-                        String[] candidateEmployee = splitLastNameFirstName(msg);
-
-                        if (candidateEmployee.length>1){ //если передвли боту и firstName и Lastname
-
-                            //FIXME: @FRO: если пользователь ввдет не в том порядке или Иванов И.И. то что тогда
-                            List<UserVacation> employeesInfo = repository.findAllByLastNameAndFirstName(candidateEmployee[0], candidateEmployee[1]);
-                            if(employeesInfo!=null)
-                            {
-                                sendMsg(msg.getChatId().toString(), messageService.getUserInfoMessage(employeesInfo));
-                                if( employeesInfo.size()==1){
-                                    stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
-                                }
+                        if (employeeInfoService.isNameCorrect(msg.getText())) {
+                            List<UserVacation> employeesInfo = repository.findAllByLastName(msg.getText());
+                            if (employeesInfo == null || employeesInfo.isEmpty()) {
+                                sendMsg(msg.getChatId().toString(), "По вашему запросу совпадений не найдено");
+                                break;
                             }
-
-                        } else { //если боту передали только LastName
-                            List<UserVacation> employeesInfo = repository.findAllByLastName(candidateEmployee[0]);
-
-                            sendMsg(msg.getChatId().toString(), messageService.getUserInfoMessage(employeesInfo));
-                            if( employeesInfo.size()==1) {
+                            if (employeesInfo.size() > 1) {
+                                sendMsg(msg.getChatId().toString(), employeeInfoService.getUsersListInfoMessage(employeesInfo));
+                                employeeInfoService.getSearchResults().put(msg.getChatId().toString(), employeesInfo);
+                                stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_EMPLOYEE_NUM);
+                            } else {
+                                sendMsg(msg.getChatId().toString(), employeeInfoService.getUserInfoMessage(employeesInfo.get(0)));
                                 stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
                             }
                         }
                         break;
+                    case AWAIT_FOR_EMPLOYEE_NUM:
+                        if (employeeInfoService.isNumberCorrect(msg.getText())) {
+                            int pos = Integer.parseInt(msg.getText()) - 1;
+                            List<UserVacation> userInfoList = employeeInfoService.getSearchResults().get(msg.getChatId().toString());
+                            if (pos < userInfoList.size()) {
+                                sendMsg(msg.getChatId().toString(), employeeInfoService.getUserInfoMessage(userInfoList.get(pos)));
+                                stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
+                                employeeInfoService.getSearchResults().remove(msg.getChatId().toString());
+                            } else
+                                sendMsg(msg.getChatId().toString(), "Некорректный номер");
+                        } else
+                            sendMsg(msg.getChatId().toString(), "Некорректный номер");
+                        break;
+                        // если кто знает, как избавиться от этих двух элсов, то пишите
                     default:
                         sendMsgWithKeyboard(msg.getChatId().toString(), "Чем могу вам помочь?", setMainKeyboardMarkup());
                         break;
                 }
-            }
-            else {
+            } else {
                 switch (stateMonitor.getState(user.getId().toString())) {
                     case NONE:
                         sendMsgWithKeyboard(msg.getChatId().toString(), "Вы не авторизованы. \n" +
@@ -120,17 +128,17 @@ public class Bot extends TelegramBotExtension {
                         break;
                     case AWAIT_FOR_PHONE:
                         sendMsg(msg.getChatId().toString(), "Вам отправлен код подтверждения. Введите его, чтобы продолжить");
-                        Authorization.addUser(msg.getChatId().toString());
-                        verificationCode = Authorization.generateVerificationCode(msg.getChatId().toString());
+                        authorization.addUser(msg.getChatId().toString());
+                        verificationCode = authorization.generateVerificationCode(msg.getChatId().toString());
                         System.out.println(msg.getChatId() + " " + verificationCode);
                         stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_CODE);
                         break;
                     case AWAIT_FOR_CODE:
-                        if (msg.hasText() && Authorization.verifyCode(msg.getChatId().toString(), msg.getText())) {
+                        if (msg.hasText() && authorization.verifyCode(msg.getChatId().toString(), msg.getText())) {
                             sendMsg(msg.getChatId().toString(), "Код принят");
                             sendMsgWithKeyboard(msg.getChatId().toString(), "Чем могу вам помочь?", setMainKeyboardMarkup());
                             stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
-                            Authorization.authoriseUser(msg.getChatId().toString());
+                            authorization.authoriseUser(msg.getChatId().toString());
                         } else {
                             sendMsg(msg.getChatId().toString(), "Неверный код");
                         }
@@ -160,15 +168,8 @@ public class Bot extends TelegramBotExtension {
             }
 
 
-
-
-
         }
     }
 
-    String[] splitLastNameFirstName(Message message) {
-        String msg = message.getText();
-        String[] result = msg.split(" ");
-        return result;
-    }
+
 }

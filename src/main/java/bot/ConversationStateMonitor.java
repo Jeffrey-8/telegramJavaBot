@@ -21,7 +21,8 @@ enum State {
     NONE,
     AWAIT_FOR_PHONE,
     AWAIT_FOR_CODE,
-    AWAIT_FOR_EMPLOYEE
+    AWAIT_FOR_EMPLOYEE,
+    AWAIT_FOR_EMPLOYEE_NUM
     }
 }
 
