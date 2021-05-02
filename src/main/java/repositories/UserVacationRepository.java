@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserVacationRepository extends JpaRepository<UserVacation, Long> {
+public interface UserVacationRepository extends JpaRepository<UserVacation,  Long> {
 // UserVacation findUserVacationByPhoneNumber(String phoneNumber);
 // UserVacation findAllByPhoneNumber(String phoneNumber);
  List<UserVacation> findAllByLastName(String lastName);

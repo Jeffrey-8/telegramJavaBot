@@ -1,9 +1,24 @@
 package bot;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import repositories.AuthRepository;
+import repositories.UserVacationRepository;
+
 import java.util.*;
 
+@Service
 public class Authorization {
+
+    @Autowired
+    AuthRepository authRepository;
+
+
 private static  Map<String,User> users = new HashMap<>();
+
+
+
 public static void setUpEmployees(){
 
     users.put("544215456",new User("544215456","+79197789484"));
