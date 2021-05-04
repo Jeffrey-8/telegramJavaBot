@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import repositories.UserVacationRepository;
 import servises.EmployeeInfoService;
+import servises.InstructionsService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,32 +33,13 @@ public class Bot extends TelegramBotExtension {
 
 
     ConversationStateMonitor stateMonitor = new ConversationStateMonitor();
-    EmployeeInfoService employeeInfoService = new EmployeeInfoService();
     Authorization authorization = new Authorization();
+    EmployeeInfoService employeeInfoService = new EmployeeInfoService();
+    InstructionsService instructionsService = new InstructionsService();
 
 
     String verificationCode;
 
-//    public Bot() {
-//        try {
-//            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(/*DefaultBotSession.class*/);
-//            telegramBotsApi.registerBot(new Bot());
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
-//        Authorization.setUpEmployees();
-//    }
-
-
-//    public static void main(String[] args) {
-//        try {
-//            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(/*DefaultBotSession.class*/);
-//            telegramBotsApi.registerBot(new Bot.Bot());
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
-//        Bot.Authorization.setUpEmployees();
-//    }
 
     @Override
     public String getBotUsername() {
@@ -114,7 +96,12 @@ public class Bot extends TelegramBotExtension {
                         } else
                             sendMsg(msg.getChatId().toString(), "Некорректный номер");
                         break;
-                        // если кто знает, как избавиться от этих двух элсов, то пишите
+                    // если кто знает, как избавиться от этих двух элсов, то пишите
+                    case AWAIT_FOR_INSTRUCTION_NUM:
+                        if (instructionsService.isNumberCorrect(msg.getText())) {
+                            sendFile(msg.getChatId().toString(),instructionsService.getInstructionPath(Integer.parseInt(msg.getText())));
+                        }
+                        break;
                     default:
                         sendMsgWithKeyboard(msg.getChatId().toString(), "Чем могу вам помочь?", setMainKeyboardMarkup());
                         break;
@@ -152,24 +139,22 @@ public class Bot extends TelegramBotExtension {
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             System.out.println(callbackQuery.getData());
-            switch (callbackQuery.getData()) {
-                case "Employee info":
-                    sendMsg(callbackQuery.getFrom().getId().toString(), "Введите ФИО сотрудника");
-                    stateMonitor.setState(callbackQuery.getFrom().getId().toString(), ConversationStateMonitor.State.AWAIT_FOR_EMPLOYEE);
-                    break;
-                case "Vacation info":
-                    break;
-                case "Vacation rules":
-                    sendMsg(callbackQuery.getFrom().getId().toString(),
-                            "Для того чтобы уйти в отпуск напишите заявление");
-                    break;
-                default:
-                    break;
+            if (authorization.isUserAuthorised(update.getCallbackQuery().getFrom().getId().toString())) {
+                switch (callbackQuery.getData()) {
+                    case "Employee info":
+                        sendMsg(callbackQuery.getFrom().getId().toString(), "Введите ФИО сотрудника");
+                        stateMonitor.setState(callbackQuery.getFrom().getId().toString(), ConversationStateMonitor.State.AWAIT_FOR_EMPLOYEE);
+                        break;
+                    case "Vacation info":
+                        break;
+                    case "Instructions":
+                        sendMsg(callbackQuery.getFrom().getId().toString(), instructionsService.getInstructionMessage());
+                        stateMonitor.setState(callbackQuery.getFrom().getId().toString(), ConversationStateMonitor.State.AWAIT_FOR_INSTRUCTION_NUM);
+                        break;
+                    default:
+                        break;
+                }
             }
-
-
         }
     }
-
-
 }
