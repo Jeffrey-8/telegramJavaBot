@@ -65,16 +65,10 @@ public class Authorization {
             return false;
 
 
-//        if (candidatesAuth.size()>1){
-//            //FIXME: у нас несколько пользователей с одним phoneNumber что-то куда-то сказать
-//        } else if (candidatesAuth.size()==1){
         if (candidateAuth.getAuthState() == AuthState.AUTHORISED)
             return true;
         else return false;
     }
-//        } else return false;//TODO: как-то сказать что чел тебя нет в вайтлисте
-//        return false; //
-
 
 
 
