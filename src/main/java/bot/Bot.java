@@ -33,7 +33,9 @@ public class Bot extends TelegramBotExtension {
 
     ConversationStateMonitor stateMonitor = new ConversationStateMonitor();
     EmployeeInfoService employeeInfoService = new EmployeeInfoService();
-    Authorization authorization = new Authorization();
+
+    @Autowired
+    Authorization authorization; //= new Authorization();
 
 
     String verificationCode;
@@ -128,8 +130,8 @@ public class Bot extends TelegramBotExtension {
                         break;
                     case AWAIT_FOR_PHONE:
                         sendMsg(msg.getChatId().toString(), "Вам отправлен код подтверждения. Введите его, чтобы продолжить");
-                        authorization.addUser(msg.getChatId().toString());
                         verificationCode = authorization.generateVerificationCode(msg.getChatId().toString());
+                        authorization.addUser(msg.getChatId().toString(), msg.getContact().getPhoneNumber(), verificationCode );
                         System.out.println(msg.getChatId() + " " + verificationCode);
                         stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_CODE);
                         break;

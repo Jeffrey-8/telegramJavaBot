@@ -19,10 +19,19 @@ public class UserAuth {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String telegramId;
+    private String chatId;
 
     private String phoneNumber;
 
-    private boolean loggedIn;
+    @Enumerated( value = EnumType.STRING)
+    private AuthState authState;
 
+
+    private String verificationCode;
+
+
+
+
+
+    private boolean loggedIn;
 }
