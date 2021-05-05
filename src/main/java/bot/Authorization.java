@@ -27,14 +27,21 @@ public class Authorization {
 //        }
 //    }
 
-    public void addUser(String chatId, String phoneNumber, String verificationCode) {
+    public boolean addUser(String chatId, String phoneNumber, String verificationCode) {
 //        users.put(id, new User(id, "", false));
+
+
 
         UserAuth userAuth = authRepository.findUserAuthByChatId(chatId);
 
+        //Если номера нет в вайтлисте...
+        if (!userAuth.getPhoneNumber().equals(phoneNumber)){
+            return false;
+        }
+
         if (userAuth != null) {
             authRepository.UpdateVerificationCode(chatId, verificationCode);
-            return;
+            return true;
         }
 
         UserAuth candidate = UserAuth.builder()
@@ -45,6 +52,7 @@ public class Authorization {
                 .build();
 
         authRepository.save(candidate);
+        return true;
     }
 
     public void authoriseUser(String chatId) {

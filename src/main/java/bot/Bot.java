@@ -132,6 +132,10 @@ public class Bot extends TelegramBotExtension {
                         sendMsg(msg.getChatId().toString(), "Вам отправлен код подтверждения. Введите его, чтобы продолжить");
                         verificationCode = authorization.generateVerificationCode(msg.getChatId().toString());
                         authorization.addUser(msg.getChatId().toString(), msg.getContact().getPhoneNumber(), verificationCode );
+                        //TODO: addUser теперь Булиновая и если номера пользователя нет в вайтлисте то вернет фолс
+                        // (допускаю что это не в этом месте надо делать)
+
+
                         System.out.println(msg.getChatId() + " " + verificationCode);
                         stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_CODE);
                         break;
