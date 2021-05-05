@@ -52,7 +52,7 @@ public class EmployeeInfoService {
     public boolean isNumberCorrect(String string) {
         try {
             int i = Integer.parseInt(string);
-            return i > 0;
+            return (i > 0);
         } catch (NumberFormatException e) {
             return false;
         }

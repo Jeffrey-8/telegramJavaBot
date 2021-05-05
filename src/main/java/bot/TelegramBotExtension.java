@@ -1,7 +1,10 @@
 package bot;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.File;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
@@ -32,16 +35,6 @@ public class TelegramBotExtension extends TelegramLongPollingBot {
     }
 
     protected synchronized void sendMsg(String chatId, String text) {
-//        SendMessage msg = SendMessage
-//                .builder()
-//                .chatId(chatId)
-//                .text(text)
-//                .replyMarkup(new ReplyKeyboardRemove(true))
-//                .build();
-
-
-//        repositoryTest.saveTest();
-
         SendMessage msg = new SendMessage(chatId,text)
                 .setReplyMarkup(new ReplyKeyboardRemove().setSelective(true));
 
@@ -54,17 +47,8 @@ public class TelegramBotExtension extends TelegramLongPollingBot {
     }
 
     protected synchronized void sendMsgWithKeyboard(String chatId, String text, ReplyKeyboard keyboardMarkup) {
-//        SendMessage msg = SendMessage
-//                .builder()
-//                .chatId(chatId)
-//                .text(text)
-//                .replyMarkup(keyboardMarkup)
-//                .build();
-
         SendMessage msg = new SendMessage(chatId,text)
                 .setReplyMarkup(keyboardMarkup);
-
-
         try {
             execute(msg);
         } catch (TelegramApiException e) {
@@ -72,6 +56,17 @@ public class TelegramBotExtension extends TelegramLongPollingBot {
         }
     }
 
+    protected synchronized void sendFile(String chatId,String path){
+        SendDocument sendDocument = new SendDocument()
+                .setChatId(chatId)
+                .setDocument(path);
+        //FIXME адеквтаность сюда
+        try {
+            execute(sendDocument);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
 
     protected ReplyKeyboard setPhoneKeyboard() {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
@@ -93,16 +88,13 @@ public class TelegramBotExtension extends TelegramLongPollingBot {
         employeeInfoBtn.setText("Информация о сотруднике");
         employeeInfoBtn.setCallbackData("Employee info");
         InlineKeyboardButton vacationInfoBtn = new InlineKeyboardButton();
-        vacationInfoBtn.setText("Информация о моем отпуске");
-        vacationInfoBtn.setCallbackData("Vacation info");
-        InlineKeyboardButton vacationRulesBtn = new InlineKeyboardButton();
-        vacationRulesBtn.setText("Информация о порядке оформления отпуска");
-        vacationRulesBtn.setCallbackData("Vacation rules");
+        InlineKeyboardButton instructionsBtn = new InlineKeyboardButton();
+        instructionsBtn.setText("Получить список инструкций");
+        instructionsBtn.setCallbackData("Instructions");
         List<InlineKeyboardButton> row0 = new ArrayList<>();
-        row0.add(employeeInfoBtn);
         List<InlineKeyboardButton> row1 = new ArrayList<>();
-        row1.add(vacationInfoBtn);
-        row1.add(vacationRulesBtn);
+        row0.add(employeeInfoBtn);
+        row1.add(instructionsBtn);
         List<List<InlineKeyboardButton>> markupList = new ArrayList<>();
         markupList.add(row0);
         markupList.add(row1);
