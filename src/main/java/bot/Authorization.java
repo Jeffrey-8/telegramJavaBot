@@ -56,7 +56,7 @@ public class Authorization {
             return false;
         }
         else{
-            authRepository.UpdateUserAuth(chatId,AuthState.NOT_AUTHORISED,verificationCode);//TODO: @FRO: захэшировать
+            authRepository.UpdateUserAuth(correctNumber,AuthState.NOT_AUTHORISED,verificationCode,chatId);//TODO: @FRO: захэшировать
         }
         return true;
     }
