@@ -28,6 +28,10 @@ public class UserVacation {
 
     private String lastName;
 
+    private String fullName;
+
+    private String initials;
+
     private String position;
 
     private String vacationDates;

@@ -5,6 +5,7 @@ import org.apache.http.auth.AUTH;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 import repositories.AuthRepository;
 import models.UserAuth;
 
@@ -27,30 +28,39 @@ public class Authorization {
 //        }
 //    }
 
-    public boolean addUser(String chatId, String phoneNumber, String verificationCode) {
+
+//    public String chan
+
+
+    public boolean addUser(String chatId, Contact phoneNumber, String textPhoneNumber, String verificationCode) {
 //        users.put(id, new User(id, "", false));
 
+        String correctNumber="";
 
+        if (phoneNumber==null){
+            correctNumber=textPhoneNumber.replaceAll("[^0-9]","");
+            if (correctNumber.startsWith("8"))//TODO: нужно ли отлавливать восьмерку  могут же быть другие коды
+                correctNumber=correctNumber.replaceFirst("8","7");
 
-        UserAuth userAuth = authRepository.findUserAuthByPhoneNumber(phoneNumber);
+        } else {
+            correctNumber=phoneNumber.getPhoneNumber();
+        }
+
+        System.out.println(correctNumber);
+
+        UserAuth userAuth = authRepository.findUserAuthByPhoneNumber(correctNumber);
+
 
         //Если номера нет в вайтлисте...
         if (userAuth == null){
             return false;
         }
         else{
-            authRepository.UpdateVerificationCode(chatId, verificationCode);
-            UserAuth candidate = UserAuth.builder()
-                    .chatId(chatId)
-                    .phoneNumber(phoneNumber)
-                    .verificationCode(verificationCode) //TODO: @FRO: захэшировать
-                    .authState(AuthState.NOT_AUTHORISED)
-                    .build();
-
-            authRepository.save(candidate);
+            authRepository.UpdateUserAuth(chatId,AuthState.NOT_AUTHORISED,verificationCode);//TODO: @FRO: захэшировать
         }
         return true;
     }
+
 
     public void authoriseUser(String chatId) {
 //        users.get(id).setLoggedIn(true);

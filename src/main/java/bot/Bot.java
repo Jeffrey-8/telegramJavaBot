@@ -116,9 +116,17 @@ public class Bot extends TelegramBotExtension {
                         stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_PHONE);
                         break;
                     case AWAIT_FOR_PHONE:
-                        sendMsg(msg.getChatId().toString(), "Вам отправлен код подтверждения. Введите его, чтобы продолжить");
                         verificationCode = authorization.generateVerificationCode(msg.getChatId().toString());
-                        authorization.addUser(msg.getChatId().toString(), msg.getContact().getPhoneNumber(), verificationCode );
+
+
+
+                        if (!authorization.addUser(msg.getChatId().toString(), msg.getContact(), msg.getText(), verificationCode ))
+                        {
+                            sendMsg(msg.getChatId().toString(), "Ваш номер не добавлен в список разрешенных для доступа. Обратитесь в техподдержку: +7888888888");
+                            break;
+                        }
+
+                        sendMsg(msg.getChatId().toString(), "Вам отправлен код подтверждения. Введите его, чтобы продолжить");
                         //TODO: addUser теперь Булиновая и если номера пользователя нет в вайтлисте то вернет фолс
                         // (допускаю что это не в этом месте надо делать)
 

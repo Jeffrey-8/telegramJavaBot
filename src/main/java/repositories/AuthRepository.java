@@ -28,6 +28,12 @@ public interface AuthRepository extends JpaRepository<UserAuth,  Long> {
 
     @Modifying
     @Transactional
+    @Query("update UserAuth u set u.authState=?2,u.verificationCode=?3 where u.chatId=?1")
+    void UpdateUserAuth(String chatId,AuthState state,String verificationCode);
+
+
+    @Modifying
+    @Transactional
     @Query("update UserAuth u set u.verificationCode=?2 where u.chatId=?1")
     void UpdateVerificationCode(String chatId,String verificationCode);
 
