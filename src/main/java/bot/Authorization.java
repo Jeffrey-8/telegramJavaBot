@@ -32,26 +32,23 @@ public class Authorization {
 
 
 
-        UserAuth userAuth = authRepository.findUserAuthByChatId(chatId);
+        UserAuth userAuth = authRepository.findUserAuthByPhoneNumber(phoneNumber);
 
         //Если номера нет в вайтлисте...
-        if (!userAuth.getPhoneNumber().equals(phoneNumber)){
+        if (userAuth == null){
             return false;
         }
-
-        if (userAuth != null) {
+        else{
             authRepository.UpdateVerificationCode(chatId, verificationCode);
-            return true;
+            UserAuth candidate = UserAuth.builder()
+                    .chatId(chatId)
+                    .phoneNumber(phoneNumber)
+                    .verificationCode(verificationCode) //TODO: @FRO: захэшировать
+                    .authState(AuthState.NOT_AUTHORISED)
+                    .build();
+
+            authRepository.save(candidate);
         }
-
-        UserAuth candidate = UserAuth.builder()
-                .chatId(chatId)
-                .phoneNumber(phoneNumber)
-                .verificationCode(verificationCode) //TODO: @FRO: захэшировать
-                .authState(AuthState.NOT_AUTHORISED)
-                .build();
-
-        authRepository.save(candidate);
         return true;
     }
 

@@ -19,6 +19,7 @@ public interface AuthRepository extends JpaRepository<UserAuth,  Long> {
     List<UserAuth> findAllByPhoneNumber(String phoneNumber);
 //    UserAuth findOneByChatId(String chatId);
     UserAuth findUserAuthByChatId(String chatId);
+    UserAuth findUserAuthByPhoneNumber(String phoneNumber);
 
     @Modifying
     @Transactional
