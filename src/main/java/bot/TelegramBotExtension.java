@@ -87,17 +87,22 @@ public class TelegramBotExtension extends TelegramLongPollingBot {
         InlineKeyboardButton employeeInfoBtn = new InlineKeyboardButton();
         employeeInfoBtn.setText("Информация о сотруднике");
         employeeInfoBtn.setCallbackData("Employee info");
-        InlineKeyboardButton vacationInfoBtn = new InlineKeyboardButton();
         InlineKeyboardButton instructionsBtn = new InlineKeyboardButton();
         instructionsBtn.setText("Получить список инструкций");
         instructionsBtn.setCallbackData("Instructions");
+        InlineKeyboardButton companyAddressBtn = new InlineKeyboardButton();
+        companyAddressBtn.setText("Реквизиты компании");
+        companyAddressBtn.setCallbackData("CompanyAddress");
         List<InlineKeyboardButton> row0 = new ArrayList<>();
         List<InlineKeyboardButton> row1 = new ArrayList<>();
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
         row0.add(employeeInfoBtn);
         row1.add(instructionsBtn);
+        row2.add(companyAddressBtn);
         List<List<InlineKeyboardButton>> markupList = new ArrayList<>();
         markupList.add(row0);
         markupList.add(row1);
+        markupList.add(row2);
         replyKeyboardMarkup.setKeyboard(markupList);
         return replyKeyboardMarkup;
     }

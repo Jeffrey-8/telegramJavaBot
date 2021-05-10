@@ -38,6 +38,11 @@ public class EmployeeInfoService {
             msg.append("По вашему запросу ничего не найдено");
         return msg.toString();
     }
+    public String getUsersListInfoMessageByFullName(List<UserVacation> employeeInfos){
+        StringBuffer msg = new StringBuffer();
+
+        return msg.toString();
+    }
 
     public boolean isNameCorrect(String name) {
 //        return name.matches("^[A-ЯЁ][а-яё]+\\s[A-ЯЁ][а-яё]+$");
@@ -58,6 +63,9 @@ public class EmployeeInfoService {
         }
     }
 
+    public boolean isMsgInitials(String message){
+        return false;
+    }
     public Map<String, List<UserVacation>> getSearchResults() {
         return searchResults;
     }

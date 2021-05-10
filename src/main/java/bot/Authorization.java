@@ -90,13 +90,11 @@ public class Authorization {
 public  String generateVerificationCode(String chatId){
     Random random = new Random();
     String code = String.format("%04d",random.nextInt(10000));
-
     authRepository.UpdateVerificationCode(chatId, code);
-
-//    users.get(id).setVerificationCode(code);
     System.out.println(code);
-
-    return code;
+    //TODO Вставить заглушку для проверки прототипа
+//    return code;
+    return "0000"; // для проверки
 }
 public  boolean verifyCode(String chatId, String code){
 //    return  code.equals(users.get(id).getVerificationCode());
