@@ -68,6 +68,7 @@ public class Bot extends TelegramBotExtension {
                 if (msg.getText().equals("/start")) {
                     sendMsg(msg.getChatId().toString(), "Здраствуйте! Я Прототип Чат-бота для вашей компании \n" +
                                                              "Пожалуйста, ознакомьтесь с моим функционалом");
+                    return;
                 }
             }
             if (authorization.isUserAuthorised(user.getId().toString())) {
@@ -131,6 +132,7 @@ public class Bot extends TelegramBotExtension {
                         if (!authorization.addUser(msg.getChatId().toString(), msg.getContact(), msg.getText(), verificationCode ))
                         {
                             sendMsg(msg.getChatId().toString(), "Ваш номер не добавлен в список разрешенных для доступа. Обратитесь в техподдержку: +7888888888");
+                            stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.NONE);
                             break;
                         }
 
