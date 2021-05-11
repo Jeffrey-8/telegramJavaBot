@@ -26,18 +26,20 @@ public class InstructionsService {
     }
 
     public String getInstructionPath(int index){
-//        return instructionList.get(index-1).getFilepath();
+        return instructionList.get(index-1).getFilepath();
 //        FIXME: Вставить определение пути файлов на сервере и понять как отправлять локальные файлы
 //         Пока пусть будет хлебопес
-        return "https://e7.pngegg.com/pngimages/998/380/png-clipart-shiba-inu-dogecoin-gif-internet-meme-egypt-dog-dog-like-mammal-dog-breed.png";
+//        return "https://e7.pngegg.com/pngimages/998/380/png-clipart-shiba-inu-dogecoin-gif-internet-meme-egypt-dog-dog-like-mammal-dog-breed.png";
     }
 
     private void setupInstructionsList(){
         Instruction inst1 = new Instruction();
         inst1.setName("Как подать заявление на отпуск");
+        inst1.setFilepath("src/main/resources/instructions/Инструкция о порядке подачи заявления на отпуск.docx");
         instructionList.add(inst1);
         Instruction inst2 = new Instruction();
         inst2.setName("Как подать завяление на больничный");
+        inst2.setFilepath("src/main/resources/instructions/Инструкция о порядке подачи заявления на больничный.docx");
         instructionList.add(inst2);
     }
     public boolean isNumberCorrect(String string) {

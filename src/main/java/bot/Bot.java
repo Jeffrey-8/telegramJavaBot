@@ -109,6 +109,7 @@ public class Bot extends TelegramBotExtension {
                     case AWAIT_FOR_INSTRUCTION_NUM:
                         if (instructionsService.isNumberCorrect(msg.getText())) {
                             sendFile(msg.getChatId().toString(),instructionsService.getInstructionPath(Integer.parseInt(msg.getText())));
+                            stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_PHONE);
                         }
                         break;
                     default:
