@@ -3,7 +3,6 @@ package bot;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -15,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +59,7 @@ public class TelegramBotExtension extends TelegramLongPollingBot {
     protected synchronized void sendFile(String chatId,String path){
         SendDocument sendDocument = new SendDocument()
                 .setChatId(chatId)
-                .setDocument(path);
+                .setDocument(new File(path));
         //FIXME адеквтаность сюда
         try {
             execute(sendDocument);
@@ -87,17 +87,22 @@ public class TelegramBotExtension extends TelegramLongPollingBot {
         InlineKeyboardButton employeeInfoBtn = new InlineKeyboardButton();
         employeeInfoBtn.setText("Информация о сотруднике");
         employeeInfoBtn.setCallbackData("Employee info");
-        InlineKeyboardButton vacationInfoBtn = new InlineKeyboardButton();
         InlineKeyboardButton instructionsBtn = new InlineKeyboardButton();
         instructionsBtn.setText("Получить список инструкций");
         instructionsBtn.setCallbackData("Instructions");
+        InlineKeyboardButton companyAddressBtn = new InlineKeyboardButton();
+        companyAddressBtn.setText("Реквизиты компании");
+        companyAddressBtn.setCallbackData("CompanyAddress");
         List<InlineKeyboardButton> row0 = new ArrayList<>();
         List<InlineKeyboardButton> row1 = new ArrayList<>();
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
         row0.add(employeeInfoBtn);
         row1.add(instructionsBtn);
+        row2.add(companyAddressBtn);
         List<List<InlineKeyboardButton>> markupList = new ArrayList<>();
         markupList.add(row0);
         markupList.add(row1);
+        markupList.add(row2);
         replyKeyboardMarkup.setKeyboard(markupList);
         return replyKeyboardMarkup;
     }

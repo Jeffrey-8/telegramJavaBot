@@ -9,11 +9,13 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import repositories.UserVacationRepository;
+import servises.CompanyAddressService;
 import servises.EmployeeInfoService;
 import servises.InstructionsService;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.Map;
 
 
@@ -34,6 +36,7 @@ public class Bot extends TelegramBotExtension {
 
     ConversationStateMonitor stateMonitor = new ConversationStateMonitor();
     EmployeeInfoService employeeInfoService = new EmployeeInfoService();
+    CompanyAddressService companyAddressService = new CompanyAddressService();
 
     @Autowired
     Authorization authorization; //= new Authorization();
@@ -63,14 +66,18 @@ public class Bot extends TelegramBotExtension {
             User user = update.getMessage().getFrom();
             if (msg.hasText()) {
                 if (msg.getText().equals("/start")) {
-                    sendMsg(msg.getChatId().toString(), "Здравствуйте, меня зовут Валера");
+                    sendMsg(msg.getChatId().toString(), "Здраствуйте! Я Прототип Чат-бота для вашей компании \n" +
+                                                             "Пожалуйста, ознакомьтесь с моим функционалом");
                 }
             }
             if (authorization.isUserAuthorised(user.getId().toString())) {
                 switch (stateMonitor.getState(msg.getChatId().toString())) {
                     case AWAIT_FOR_EMPLOYEE:
+
                         if (employeeInfoService.isNameCorrect(msg.getText())) {
-                            List<UserVacation> employeesInfo = repository.findAllByLastName(msg.getText());
+//                            List<UserVacation> employeesInfo = repository.findAllByLastName(msg.getText());
+                            // поиск по полному ФИО (содержит запрос)
+                            List<UserVacation> employeesInfo = repository.findAllByFullNameContains(msg.getText());
                             if (employeesInfo == null || employeesInfo.isEmpty()) {
                                 sendMsg(msg.getChatId().toString(), "По вашему запросу совпадений не найдено");
                                 break;
@@ -102,6 +109,7 @@ public class Bot extends TelegramBotExtension {
                     case AWAIT_FOR_INSTRUCTION_NUM:
                         if (instructionsService.isNumberCorrect(msg.getText())) {
                             sendFile(msg.getChatId().toString(),instructionsService.getInstructionPath(Integer.parseInt(msg.getText())));
+                            stateMonitor.setState(msg.getChatId().toString(), ConversationStateMonitor.State.AWAIT_FOR_PHONE);
                         }
                         break;
                     default:
@@ -164,6 +172,9 @@ public class Bot extends TelegramBotExtension {
                     case "Instructions":
                         sendMsg(callbackQuery.getFrom().getId().toString(), instructionsService.getInstructionMessage());
                         stateMonitor.setState(callbackQuery.getFrom().getId().toString(), ConversationStateMonitor.State.AWAIT_FOR_INSTRUCTION_NUM);
+                        break;
+                    case "CompanyAddress":
+                        sendMsg(callbackQuery.getFrom().getId().toString(), companyAddressService.getCompanyAddress());
                         break;
                     default:
                         break;
