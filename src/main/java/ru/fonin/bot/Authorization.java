@@ -1,13 +1,11 @@
-package bot;
+package ru.fonin.bot;
 
-import models.AuthState;
-import org.apache.http.auth.AUTH;
+import ru.fonin.models.AuthState;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Contact;
-import repositories.AuthRepository;
-import models.UserAuth;
+import ru.fonin.repositories.AuthRepository;
+import ru.fonin.models.UserAuth;
 
 
 import java.util.*;

@@ -1,4 +1,4 @@
-package models;
+package ru.fonin.models;
 
 
 import lombok.AllArgsConstructor;

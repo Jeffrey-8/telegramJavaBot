@@ -1,6 +1,6 @@
-package bot;
+package ru.fonin.bot;
 
-import models.UserVacation;
+import ru.fonin.models.UserVacation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -8,15 +8,12 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import repositories.UserVacationRepository;
-import servises.CompanyAddressService;
-import servises.EmployeeInfoService;
-import servises.InstructionsService;
+import ru.fonin.repositories.UserVacationRepository;
+import ru.fonin.servises.CompanyAddressService;
+import ru.fonin.servises.EmployeeInfoService;
+import ru.fonin.servises.InstructionsService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.LongSummaryStatistics;
-import java.util.Map;
 
 
 @Component

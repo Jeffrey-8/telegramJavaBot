@@ -1,10 +1,8 @@
-package repositories;
+package ru.fonin.repositories;
 
 
-import models.AuthState;
-import models.State;
-import models.UserAuth;
-import models.UserVacation;
+import ru.fonin.models.AuthState;
+import ru.fonin.models.UserAuth;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

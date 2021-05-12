@@ -1,4 +1,4 @@
-package bot;
+package ru.fonin.bot;
 
 import java.util.HashMap;
 import java.util.Map;

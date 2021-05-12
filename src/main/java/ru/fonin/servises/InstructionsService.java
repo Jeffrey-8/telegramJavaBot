@@ -1,6 +1,6 @@
-package servises;
+package ru.fonin.servises;
 
-import models.Instruction;
+import ru.fonin.models.Instruction;
 
 import java.util.ArrayList;
 

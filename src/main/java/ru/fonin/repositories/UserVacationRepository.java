@@ -1,8 +1,7 @@
-package repositories;
+package ru.fonin.repositories;
 
-import models.UserVacation;
+import ru.fonin.models.UserVacation;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

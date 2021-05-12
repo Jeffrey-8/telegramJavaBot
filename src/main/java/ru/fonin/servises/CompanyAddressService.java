@@ -1,4 +1,4 @@
-package servises;
+package ru.fonin.servises;
 
 public class CompanyAddressService {
     // Можно попробовать поиграться с разметкой
